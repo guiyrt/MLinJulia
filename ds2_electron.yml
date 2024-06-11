@@ -1,0 +1,49 @@
+datasetFile: binning_dataset_2.xml
+trainFiles:
+  - dataset_2_1.hdf5
+evalFiles:
+  - dataset_2_2.hdf5
+shapeOrig: [-1, 6480]
+shapeGeom: [-1, 45, 16, 9, 1]
+shapePad: [-1 ,1, 45, 16, 9]
+showerTransforms:
+  - logit
+  - norm
+batchSize: 128
+learningRate: 4.0e-4
+maxEpoch: 1000
+earlyStop: 20
+layerSizeUnet: [16, 16, 16, 32]
+condSizeUnet: 128
+blockAttn: true
+midAttn: true
+compressZ: true
+eMax: 1000.
+eMin: 1.
+logE: true
+maxDeposit: 2
+cylindricalConv: true
+RZinput: true
+betaMax: 0.02
+noiseSched: cosine
+nSteps: 400
+trainingObj: noise_pred
+lossType: l2
+timeEmbed: sigma
+condEmbed: id
+stats:
+  logit:
+    mean: -12.8564
+    std: 1.9123
+    min: -13.8155
+    max: 0.1153
+  log:
+    mean: -17.5451
+    std: 4.4086
+    min: -20.0
+    max: -0.6372
+  sqrt:
+    mean: 0.0026
+    std: 0.0073
+    min: 0.
+    max: 1.0

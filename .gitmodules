@@ -1,0 +1,6 @@
+[submodule "CaloDiffusion"]
+	path = CaloDiffusion
+	url = git@github.com:guiyrt/CaloDiffusion.git
+[submodule "CaloChallenge"]
+	path = CaloChallenge
+	url = git@github.com:guiyrt/CaloChallenge.git
