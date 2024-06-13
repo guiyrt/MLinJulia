@@ -1,0 +1,1 @@
+reversedims(x::Array) = permutedims(x, (x |> size |> length):-1:1)

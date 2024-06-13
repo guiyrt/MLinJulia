@@ -3,12 +3,11 @@ trainFiles:
   - dataset_2_1.hdf5
 evalFiles:
   - dataset_2_2.hdf5
-shapeOrig: [-1, 6480]
-shapeGeom: [-1, 45, 16, 9, 1]
-shapePad: [-1 ,1, 45, 16, 9]
+showerShape: [1, 45, 16, 9]
 showerTransforms:
   - logit
   - norm
+trainValSplit: 0.85
 batchSize: 128
 learningRate: 4.0e-4
 maxEpoch: 1000
