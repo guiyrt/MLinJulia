@@ -4,6 +4,6 @@ include("models.jl")
 include("data.jl")
 include("utils.jl")
 
-export CylindricalConvTranspose, reversedims
+export CylindricalConvTranspose, CylindricalConv, reversedims
 
 end # module MLinJulia
