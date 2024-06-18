@@ -1,7 +1,5 @@
 using HDF5, XML, IterTools, YAML, Flux
 
-include("config.jl")
-
 
 function loadDataFile(filename::String, c::TrainingConfig)
     showers::Array{Float32} = h5read("datasets/$filename", "showers")

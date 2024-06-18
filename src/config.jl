@@ -1,3 +1,5 @@
+using YAML
+
 struct TrainingConfig
     datasetFile::String
     trainFiles::Vector{String}
