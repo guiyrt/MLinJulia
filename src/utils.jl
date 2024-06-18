@@ -1,1 +1,3 @@
-reversedims(x::Array) = permutedims(x, (x |> size |> length):-1:1)
+fn_if(fn, b::Bool) = b ? fn : identity
+
+reversedims(x::AbstractArray) = permutedims(x, ndims(x):-1:1)
