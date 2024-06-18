@@ -1,6 +1,8 @@
-using MLinJulia
-using Test
+using MLinJulia, Test
 
-@testset "Model tests" begin
-    include("models.jl")
+
+include("python/torch/utils.jl")
+
+@testset "Layer tests" begin
+    include("python/torch/layers.jl")
 end

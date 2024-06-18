@@ -1,1 +1,0 @@
-nparams = prod∘size
