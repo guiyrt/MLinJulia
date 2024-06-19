@@ -19,7 +19,7 @@ include("torch/base.jl")
 include("torch/conv.jl")
 include("torch/attention.jl")
 
-export CylindricalConvTranspose, CylindricalConv, LinearAttention
+export CylindricalConvTranspose, CylindricalConv, LinearAttention, Residual, PreNorm
 export setparams!
 
 end # module MLinJulia

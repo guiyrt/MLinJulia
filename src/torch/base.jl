@@ -61,6 +61,13 @@ function setparams!(c::Chain, torchseq::PyObject)
     return c
 end
 
+function Chain(torchseq::PyObject)
+    @assert isclassname(torchseq, "Sequential")
+
+    Chain([frompyclass(pyo) for pyo in torchseq]...)
+end
+
+
 """
 As PyObject is not parametric, multiple dispatch is not possible. Instead, the Python classname has to be checked.
 A cool alternative would be to create a parametric PyObject struct, as such:
@@ -76,29 +83,30 @@ Like this, a PyTorch Conv2d would have type PyObjectClass{Symbol(torch.nn.module
 
 Then, instead of having a new contructor Conv(torchconv::PyObject), convert could be implemented with
  signature convert(Conv, PyObjectClass{Symbol(torch.nn.modules.conv.Conv2d)}), or a new function fromtorch with methods for 
- every Python class of interest.
+ every Python class of interest. 
+
+fromtorch makes more sense, fromtorch(pyo::PyObject) could convert PyObject to PyObjectClass and do a recursive call, on which the
+ implemented parametric type would take over. Maybe if there is time!
 
 """
-function Chain(torchseq::PyObject)
-    @assert isclassname(torchseq, "Sequential")
-
-    function frompyclass(pyo::PyObject)
-        if isclassname(pyo, ["Conv2d", "Conv3d"])
-            Conv(pyo)
-        elseif isclassname(pyo, ["ConvTranspose2d", "ConvTranspose2d"])
-            ConvTranspose(pyo)
-        elseif isclassname(pyo, "CylindricalConv")
-            CylindricalConv(pyo)
-        elseif isclassname(pyo, "CylindricalConvTranspose")
-            CylindricalConvTranspose(pyo)
-        elseif isclassname(pyo, "GroupNorm")
-            GroupNorm(pyo)
-        elseif isclassname(pyo, "LinearAttention")
-            LinearAttention(pyo)
-        else
-            throw(DomainError("Unsupported layer type: $(pyo.__class__.__name__)"))
-        end
+function frompyclass(pyo::PyObject)
+    if isclassname(pyo, ["Conv2d", "Conv3d"])
+        Conv(pyo)
+    elseif isclassname(pyo, ["ConvTranspose2d", "ConvTranspose2d"])
+        ConvTranspose(pyo)
+    elseif isclassname(pyo, "CylindricalConv")
+        CylindricalConv(pyo)
+    elseif isclassname(pyo, "CylindricalConvTranspose")
+        CylindricalConvTranspose(pyo)
+    elseif isclassname(pyo, "GroupNorm")
+        GroupNorm(pyo)
+    elseif isclassname(pyo, "LinearAttention")
+        LinearAttention(pyo)
+    elseif isclassname(pyo, "PreNorm")
+        PreNorm(pyo)
+    elseif isclassname(pyo, "Residual")
+        Residual(pyo)
+    else
+        throw(DomainError("Unsupported layer type: $(pyo.__class__.__name__)"))
     end
-
-    Chain([frompyclass(pyo) for pyo in torchseq]...)
 end

@@ -35,3 +35,34 @@ function (la::LinearAttention)(x::AbstractArray)
 
     la.toOut(@cast _[z, y, x, c⊗h, b] := out[z⊗y⊗x, c, h, b] h in 1:la.nHeads, z in 1:w, y in 1:h, x in 1:l)
 end
+
+
+struct PreNorm
+    norm::GroupNorm
+    layer
+end
+
+function PreNorm(dim::Int, layer::T) where {T}
+    # layer must have AbstractArray functor 
+    @assert any(method.sig >: Tuple{T, AbstractArray} for method in methods(layer)) "No functor for (layer::$T)(x::AbstractArray)"
+    PreNorm(GroupNorm(dim, 1), layer)
+end
+
+Flux.@layer PreNorm
+
+(pn::PreNorm)(x::AbstractArray) = (pn.layer ∘ pn.norm)(x)
+
+
+struct Residual
+    layer
+
+    function Residual(layer::T) where {T}
+        # layer must have AbstractArray functor 
+        @assert any(method.sig >: Tuple{T, AbstractArray} for method in methods(layer)) "No functor for (layer::$T)(x::AbstractArray)"
+        new(layer)
+    end
+end
+
+Flux.@layer Residual
+
+(res::Residual)(x::AbstractArray) = res.layer(x) + x

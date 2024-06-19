@@ -15,3 +15,30 @@ function LinearAttention(torchla::PyObject)
 
     LinearAttention{convType}(Float32(torchla.scale), torchla.n_heads, convType(torchla.to_qkv), Chain(torchla.to_out))
 end
+
+
+function setparams!(pn::PreNorm, torchpn::PyObject)
+    @assert isclassname(torchpn, "PreNorm")
+    
+    setparams!(pn.norm, torchpn.norm)
+    setparams!(pn.layer, torchpn.layer)
+end
+
+function PreNorm(torchpn::PyObject)
+    @assert isclassname(torchpn, "PreNorm")
+
+    PreNorm(GroupNorm(torchpn.norm), frompyclass(torchpn.layer))
+end
+
+
+function setparams!(res::Residual, torchres::PyObject)
+    @assert isclassname(torchres, "Residual")
+    
+    setparams!(res.layer, torchres.layer)
+end
+
+function Residual(torchres::PyObject)
+    @assert isclassname(torchres, "Residual")
+
+    Residual(frompyclass(torchres.layer))
+end
