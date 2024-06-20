@@ -52,3 +52,12 @@ end
     # Nearly identical output
     @test res(data) ≈ torchres(torchdata) |> fromtorchtensor
 end
+
+@testset "SinusoidalPositionEmbeddings" begin
+    data, torchdata = randinttensors([0:256...], 128)
+
+    torchspe = pymodels.SinusoidalPositionEmbeddings(32)
+    spe = SinusoidalPositionEmbeddings(torchspe)
+    
+    @test spe(data) ≈ torchspe(torchdata) |> fromtorchtensor
+end
