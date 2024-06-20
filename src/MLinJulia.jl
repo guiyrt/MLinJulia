@@ -16,12 +16,15 @@ export loadDataset
 include("layers/conv.jl")
 include("layers/attention.jl")
 include("layers/embeddings.jl")
+include("layers/resnetblock.jl")
 include("torch/base.jl")
 include("torch/conv.jl")
 include("torch/attention.jl")
 include("torch/embeddings.jl")
+include("torch/resnetblock.jl")
 
-export CylindricalConvTranspose, CylindricalConv, LinearAttention, Residual, PreNorm, SinusoidalPositionEmbeddings
+
+export CylindricalConvTranspose, CylindricalConv, LinearAttention, Residual, PreNorm, SinusoidalPositionEmbeddings, ConvBlock, ResNetBlock
 export setparams!
 
 end # module MLinJulia

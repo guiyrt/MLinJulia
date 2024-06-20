@@ -61,3 +61,22 @@ end
     
     @test spe(data) ≈ torchspe(torchdata) |> fromtorchtensor
 end
+
+@testset "ConvBlock" begin
+    data, torchdata = rand32tensors(9, 16, 45, 16, 128)
+
+    torchcb = pymodels.ConvBlock(dim=16, dim_out=16, groups=8, cylindrical=true)
+    cb = ConvBlock(torchcb)
+
+    @test cb(data) ≈ torchcb(torchdata) |> fromtorchtensor
+end
+
+@testset "ResNetBlock" begin
+    data, torchdata = rand32tensors(9, 16, 45, 32, 128)
+    time, torchtime = rand32tensors(128, 1)
+
+    torchrnb = pymodels.ResNetBlock(dim=32, dim_out=16, cond_emb_dim=128, groups=8, cylindrical=true)
+    rnb = ResNetBlock(torchrnb)
+
+    @test rnb(data, time) ≈ torchrnb(torchdata, torchtime) |> fromtorchtensor
+end

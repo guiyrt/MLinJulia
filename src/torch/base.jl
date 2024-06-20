@@ -1,6 +1,27 @@
 using Flux, NNlib, PyCall
 
 
+function setparams!(dense::Dense, torchlinear::PyObject)
+    @assert isclassname(torchlinear, "Linear")
+
+    params = Dict(k => v for (k, v) in torchlinear.named_parameters())
+    dense.weight .= fromtorchtensor(params["weight"]; dimsreversed=false)
+    
+    if haskey(params, "bias")
+        dense.bias .= params["bias"] |> fromtorchtensor
+    end
+
+    return dense
+end
+
+function Dense(torchlinear::PyObject, σ=identity)
+    @assert isclassname(torchlinear, "Linear")
+
+    dense = Dense(torchlinear.in_features => torchlinear.out_features, σ; bias=!isnothing(torchlinear.bias))
+    setparams!(dense, torchlinear)
+end
+
+
 function setparams!(conv::Union{Conv, ConvTranspose}, torchconv::PyObject)
     @assert isclassname(torchconv, ["Conv3d", "ConvTranspose3d"])
     
@@ -90,7 +111,9 @@ fromtorch makes more sense, fromtorch(pyo::PyObject) could convert PyObject to P
 
 """
 function frompyclass(pyo::PyObject)
-    if isclassname(pyo, ["Conv2d", "Conv3d"])
+    if isclassname(pyo, "Linear")
+        Dense(pyo)
+    elseif isclassname(pyo, ["Conv2d", "Conv3d"])
         Conv(pyo)
     elseif isclassname(pyo, ["ConvTranspose2d", "ConvTranspose2d"])
         ConvTranspose(pyo)
@@ -106,6 +129,10 @@ function frompyclass(pyo::PyObject)
         PreNorm(pyo)
     elseif isclassname(pyo, "Residual")
         Residual(pyo)
+    elseif isclassname(pyo, "ConvBlock")
+        ConvBlock(pyo)
+    elseif isclassname(pyo, "ResNetBlock")
+        ResNetBlock(pyo)
     else
         throw(DomainError("Unsupported layer type: $(pyo.__class__.__name__)"))
     end
