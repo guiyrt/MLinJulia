@@ -54,10 +54,19 @@ end
 end
 
 @testset "SinusoidalPositionEmbeddings" begin
-    data, torchdata = randinttensors([0:256...], 128)
+    data, torchdata = rand32tensors(1)
 
-    torchspe = pymodels.SinusoidalPositionEmbeddings(32)
+    torchspe = pymodels.SinusoidalPositionEmbeddings(128)
     spe = SinusoidalPositionEmbeddings(torchspe)
+    
+    @test spe(data) ≈ torchspe(torchdata) |> fromtorchtensor
+end
+
+@testset "MlpEmbeddings" begin
+    data, torchdata = rand32tensors(1)
+
+    torchspe = pymodels.MlpEmbeddings(128)
+    spe = MlpEmbeddings(torchspe)
     
     @test spe(data) ≈ torchspe(torchdata) |> fromtorchtensor
 end
@@ -75,7 +84,7 @@ end
     data, torchdata = rand32tensors(9, 16, 45, 32, 128)
     time, torchtime = rand32tensors(128, 1)
 
-    torchrnb = pymodels.ResNetBlock(dim=32, dim_out=16, cond_emb_dim=128, groups=8, cylindrical=true)
+    torchrnb = pymodels.ResNetBlock(dim_in=32, dim_out=16, cond_dim=128, groups=8, cylindrical=true)
     rnb = ResNetBlock(torchrnb)
 
     @test rnb(data, time) ≈ torchrnb(torchdata, torchtime) |> fromtorchtensor

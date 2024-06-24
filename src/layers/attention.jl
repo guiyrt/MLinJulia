@@ -8,7 +8,7 @@ struct LinearAttention{T<:Union{Conv, CylindricalConv}}
     toOut::Chain{<:Tuple{T, GroupNorm}}
 end
 
-function LinearAttention{T}(dim::Int, nHeads::Int, dimHead::Int=32) where {T<:Union{Conv, CylindricalConv}}
+function LinearAttention{T}(dim::Int, nHeads::Int=1, dimHead::Int=32) where {T<:Union{Conv, CylindricalConv}}
     hiddenDim = dimHead*nHeads
 
     LinearAttention{T}(

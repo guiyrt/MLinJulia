@@ -49,7 +49,7 @@ function ConvTranspose(torchct::PyObject)
 
     ct = ConvTranspose(torchct.kernel_size |> reverse, torchct.in_channels => torchct.out_channels;
          stride=torchct.stride |> reverse, pad=Tuple(x for x in reverse(torchct.padding) for _ in 1:2),
-         dilation=torchct.dilation |> reverse)
+         outpad=torchct.output_padding|>reverse, dilation=torchct.dilation |> reverse)
     setparams!(ct, torchct)
 end
 
@@ -133,6 +133,10 @@ function frompyclass(pyo::PyObject)
         ConvBlock(pyo)
     elseif isclassname(pyo, "ResNetBlock")
         ResNetBlock(pyo)
+    elseif isclassname(pyo, "SinusoidalPositionEmbeddings")
+        SinusoidalPositionEmbeddings(pyo)
+    elseif isclassname(pyo, "Identity")
+        identity
     else
         throw(DomainError("Unsupported layer type: $(pyo.__class__.__name__)"))
     end

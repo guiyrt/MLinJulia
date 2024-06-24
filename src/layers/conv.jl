@@ -7,12 +7,11 @@ struct CylindricalConv
 end
 
 function CylindricalConv(k::NTuple{3,Integer}, ch::Pair{<:Integer,<:Integer}, σ=identity;
-    init=Flux.glorot_uniform, stride=1, pad::Int=0, dilation=1, groups=1, bias=true
+    init=Flux.glorot_uniform, stride=1, pad=0, dilation=1, groups=1, bias=true
 )
-    convPad = (pad, pad, 0, 0, pad, pad)
     CylindricalConv(
         (0, 0, pad, pad, 0, 0),
-        Conv(k, ch, σ; init, stride, pad=convPad, dilation, groups, bias)
+        Conv(k, ch, σ; init, stride, pad=(pad, pad, 0, 0, pad, pad), dilation, groups, bias)
     )
 end
 
@@ -27,12 +26,11 @@ struct CylindricalConvTranspose
 end
 
 function CylindricalConvTranspose(k::NTuple{3,Integer}, ch::Pair{<:Integer,<:Integer}, σ=identity;
-    init=Flux.glorot_uniform, stride=(2, 1, 1), pad::Int=1, dilation=1, groups=1
+    init=Flux.glorot_uniform, stride=(2, 1, 1), pad=1, outpad=0, dilation=1, groups=1
 )
-    convTransposePad = (pad, pad, k[2]-1, k[2]-1, pad, pad)
     CylindricalConvTranspose(
         (0, 0, pad, pad, 0, 0),
-        ConvTranspose(k, ch, σ; init, stride, pad=convTransposePad, dilation, groups)
+        ConvTranspose(k, ch, σ; init, stride, pad=(pad, pad, k[2]-1, k[2]-1, pad, pad), outpad, dilation, groups)
     )
 end
 

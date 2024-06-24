@@ -24,7 +24,7 @@ include("torch/embeddings.jl")
 include("torch/resnetblock.jl")
 
 
-export CylindricalConvTranspose, CylindricalConv, LinearAttention, Residual, PreNorm, SinusoidalPositionEmbeddings, ConvBlock, ResNetBlock
+export CylindricalConvTranspose, CylindricalConv, LinearAttention, Residual, PreNorm, SinusoidalPositionEmbeddings, MlpEmbeddings, ConvBlock, ResNetBlock
 export setparams!
 
 end # module MLinJulia
