@@ -17,14 +17,17 @@ include("layers/conv.jl")
 include("layers/attention.jl")
 include("layers/embeddings.jl")
 include("layers/resnetblock.jl")
+include("models/CaloDiffusion.jl")
 include("torch/base.jl")
 include("torch/conv.jl")
 include("torch/attention.jl")
 include("torch/embeddings.jl")
 include("torch/resnetblock.jl")
+include("torch/CaloDiffusion.jl")
 
 
 export CylindricalConvTranspose, CylindricalConv, LinearAttention, Residual, PreNorm, SinusoidalPositionEmbeddings, MlpEmbeddings, ConvBlock, ResNetBlock
+export CaloDiffusion
 export setparams!
 
 end # module MLinJulia
