@@ -3,7 +3,7 @@ trainFiles:
   - dataset_2_1.hdf5
 evalFiles:
   - dataset_2_2.hdf5
-showerShape: [1, 45, 16, 9]
+showerShape: [9, 16, 45, 1]
 showerTransforms:
   - logit
   - norm

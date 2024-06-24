@@ -1,9 +1,9 @@
 using HDF5, XML, IterTools, YAML, Flux
 
 
-function loadDataFile(filename::String, c::TrainingConfig)
-    showers::Array{Float32} = h5read("datasets/$filename", "showers")
-    ienergies::Array{Float32} = h5read("datasets/$filename", "incident_energies")
+function loadDataFile(c::TrainingConfig, filename::String)
+    showers::Array{Float32} = h5read(filename, "showers")
+    ienergies::Array{Float32} = h5read(filename, "incident_energies")
 
     showers ./= 1000.
     ienergies ./= 1000.
@@ -42,7 +42,7 @@ end
 
 tupleLastDimCat(x::Tuple{T,N}, y::Tuple{T,N}) where {T,N} = (cat(x[1], y[1], dims=(length∘size)(x[1])), cat(x[2], y[2], dims=(length∘size)(x[2])))
 
-loadDataset(filenames::Vector{String}, c::TrainingConfig) = reduce(tupleLastDimCat, [loadDataFile(trainFile, c) for trainFile in filenames])
+loadDataset(c::TrainingConfig, filenames...) = reduce(tupleLastDimCat, [loadDataFile(trainFile, c) for trainFile in filenames])
 
 function getDataLoaders(c::TrainingConfig)
     train, val = Flux.splitobs(loadDataset(c.trainFiles, c), at=c.trainValSplit, shuffle=true)
