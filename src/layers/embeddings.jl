@@ -43,4 +43,4 @@ end
 
 Flux.@layer MlpEmbeddings
 
-(mlp::MlpEmbeddings)(time::AbstractArray) = time |> (x -> @cast _[v, 1] := x[v]) |> mlp.in |> mlp.hidden |> mlp.out
+(mlp::MlpEmbeddings)(time::AbstractArray) = time |> mlp.in |> mlp.hidden |> mlp.out

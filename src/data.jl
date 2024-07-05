@@ -1,56 +1,21 @@
-using HDF5, XML, IterTools, YAML, Flux
+using HDF5, YAML, Flux, Underscores
 
 
-function loadDataFile(c::TrainingConfig, filename::String)
-    showers::Array{Float32} = h5read(filename, "showers")
-    ienergies::Array{Float32} = h5read(filename, "incident_energies")
+lastdimcat(x::AbstractArray{T,N}, y::AbstractArray{T,N}) where {T,N} = cat(x, y, ndims(x))
+lastdimcat(x::Tuple{T,N}, y::Tuple{T,N}) where {T,N} = (lastdimcat(x[1], y[1]), lastdimcat(x[2], y[2]))
 
-    showers ./= 1000.
-    ienergies ./= 1000.
+load_datafile(filename::String) = h5read(filename, "showers") |> f32, h5read(filename, "incident_energies") |> f32
+load_dataset(filenames::Vector{String}) = reduce(lastdimcat, [load_datafile(file) for file in filenames])
 
-    showers ./= ienergies.*c.maxDeposit
+function get_dataloaders(c::TrainingConfig)
+    train = @_ load_dataset(c.trainfiles) |> preprocess(c, __...)
+    test = @_ load_dataset(c.testfiles) |> preprocess(c, __...)
 
-    # Data transformation
-    if c.showerTransforms[1] == "sqrt"
-        showers = sqrt.(showers)
-    elseif c.showerTransforms[1] == "log"
-        showers = log.(showers)
-        replace!(showers, NaN => min)
-    elseif c.showerTransforms[1] == "logit"
-        δ = 1e-6
-        showers = showers .* (1-2δ) .+ δ
-        showers = log.(showers ./ (1 .- showers))
-        replace!(showers, NaN => 0.)
-    end
+    train, val = Flux.splitobs(train, at=c.train_val_split, shuffle=true)
 
-    # Data normalization
-    if c.showerTransforms[2] == "norm"
-        # Normalize so that x̄=0 and σ²=1
-        showers = (showers .- c.sMean) ./ c.sStd
-    elseif c.showerTransforms[2] == "scaled"
-        # Scale to range -1 to 1
-        showers = c.showerTransforms[1] == "sqrt" ? (showers.*2.0) .- 1.0 : 2.0 .* (showers.-c.sMin) ./ (c.sMax-c.sMin) .- 1.0
-    end
+    train_loader = Flux.DataLoader(train, batchsize=c.batchsize, shuffle=true)
+    val_loader = Flux.DataLoader(val, batchsize=c.batchsize, shuffle=false)
+    test_loader = Flux.DataLoader(test, batchsize=c.batchsize, shuffle=false)
 
-    ienergies = c.logE ? log10.(ienergies./c.eMin) ./ log10(c.eMax/c.eMin) : (ienergies.-c.eMin) ./ (c.eMax-c.eMin)
-
-    showers = reshape(showers, (c.showerShape..., :))
-    ienergies = reshape(ienergies, (:))
-
-    return showers, ienergies
-end
-
-tupleLastDimCat(x::Tuple{T,N}, y::Tuple{T,N}) where {T,N} = (cat(x[1], y[1], dims=(length∘size)(x[1])), cat(x[2], y[2], dims=(length∘size)(x[2])))
-
-loadDataset(c::TrainingConfig, filenames...) = reduce(tupleLastDimCat, [loadDataFile(trainFile, c) for trainFile in filenames])
-
-function getDataLoaders(c::TrainingConfig)
-    train, val = Flux.splitobs(loadDataset(c.trainFiles, c), at=c.trainValSplit, shuffle=true)
-    eval = loadDataset(c.evalFiles, c)
-
-    trainLoader = Flux.DataLoader(train, batchsize=c.batchSize, shuffle=true)
-    valLoader = Flux.DataLoader(val, batchsize=c.batchSize, shuffle=false)
-    evalLoader = Flux.DataLoader(eval, batchsize=c.batchSize, shuffle=false)
-
-    return trainLoader, valLoader, evalLoader
+    return train_loader, val_loader, test_loader
 end

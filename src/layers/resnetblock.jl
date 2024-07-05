@@ -41,7 +41,7 @@ function (rnb::ResNetBlock)(x::AbstractArray, time::Union{AbstractArray, Nothing
 
     if !isnothing(rnb.cond_emb) && !isnothing(time)
         t = (rnb.cond_emb∘swish)(time)
-        h .+= @cast _[1, 1, 1, c, b] := t[c, b]
+        h = h .+ @cast _[1, 1, 1, c, b] := t[c, b]
     end
 
     rnb.block₂(h) + rnb.resconv(x)

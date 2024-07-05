@@ -1,39 +1,57 @@
-using XML, IterTools
+using XML, IterTools, OrderedCollections
 
 
 getfirstchild(node::Union{Node,LazyNode}) = node |> children |> first
 
-# Document -> Bins -> Bin
-bins = read("CaloChallenge/code/binning_dataset_1_photons.xml", LazyNode) |> getfirstchild |> getfirstchild
+midpoints(vec) = [(i+j)/2 for (i, j) in partition(vec, 2, 1)]
 
-# Bin -> Layers
-layers = bins |> children
-
-
-pairwiseMidpoint(vec::Vector{Float64}) = [i+(j-i)/2 for (i, j) in partition(vec, 2, 1)]
 
 struct CalorimeterLayer
     id::Int
-    n_αBins::Int # Number of angular bins
-    n_rBins::Int # Number of radial bins
-    nBins::Int # Number of total bins
-    rEdges::Vector{Float64} # Edge-point of radial bins
-    rMidpoints::Vector{Float64} # Midpoint of radial bins
-    αMidpoints::Vector{Float64} # Midpoint of angular bins
+    n_αbins::Int # Number of angular bins
+    r_edges::Vector{Float64} # Edge-point of radial bins
 
-    function CalorimeterLayer(layer::Union{Node,LazyNode})
+    function CalorimeterLayer(layer::Union{Node, LazyNode})
         attr = XML.attributes(layer)
         
-        n_αBins = parse(Int, attr["n_bin_alpha"])
-        rEdges = [parse(Float64, edge) for edge in split(attr["r_edges"], ',')]
-        rMidpoints = pairwiseMidpoint(rEdges)
-        αMidpoints = n_αBins > 1 ? LinRange(-π, π, n_αBins+1) |> collect |> pairwiseMidpoint : [0.]
-
-        new(parse(Int, attr["id"]), n_αBins, length(rEdges)-1, n_αBins*n_rBins, rEdges, rMidpoints, αMidpoints)
+        new(
+            parse(Int, attr["id"]),
+            parse(Int, attr["n_bin_alpha"]),
+            [parse(Float64, edge) for edge in split(attr["r_edges"], ',')]
+        )
     end
 end
 
 
 struct Calorimeter
+    particle::String
     layers::Vector{CalorimeterLayer}
+    r_midpoints::Vector{Float64}
+    α_midpoints::Vector{Float64}
+    shape::NTuple{4, Int}
+    nvoxels::Int
+
+    function Calorimeter(binningfile::String)
+        bins = read(binningfile, LazyNode) |> getfirstchild |> getfirstchild
+        layers = [CalorimeterLayer(layer) for layer in children(bins)]
+
+        r_edges = reduce(layers[2:end]; init=OrderedSet(layers[1].r_edges)) do edges, layer
+            union(edges, OrderedSet(layer.r_edges))
+        end |> sort
+        r_midpoints = midpoints(r_edges)
+
+        n_αbins = maximum(layer.n_αbins for layer in layers)
+        α_midpoints = LinRange(-π, π, n_αbins+1) |> midpoints
+
+        shape = (length(r_midpoints), n_αbins , length(layers), 1)
+
+        return new(
+            XML.attributes(bins)["name"],
+            layers,
+            r_midpoints,
+            α_midpoints,
+            shape,
+            prod(shape)
+        )
+    end
 end

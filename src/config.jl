@@ -1,78 +1,60 @@
 using YAML
 
 struct TrainingConfig
-    datasetFile::String
-    trainFiles::Vector{String}
-    evalFiles::Vector{String}
-    showerShape::NTuple{4, Int}
-    showerTransforms::Vector{String}
-    trainValSplit::Float64
-    batchSize::Int
-    learningRate::Float64
-    maxEpoch::Int
-    earlyStop::Int
-    layerSizeUnet::NTuple{4, Int}
-    condSizeUnet::Int
-    blockAttn::Bool
-    midAttn::Bool
-    compressZ:: Bool
-    eMax::Float32
-    eMin::Float32
-    logE::Bool
-    maxDeposit::Int
-    cylindricalConv::Bool
-    RZinput::Bool
-    betaMax::Float64
-    noiseSched::String
-    nSteps::Int
-    trainingObj::String
-    lossType::String
-    timeEmbed::String
-    condEmbed::String
-    sMean::Float32
-    sStd::Float32
-    sMin::Float32
-    sMax::Float32
+    calo::Calorimeter
+    trainfiles::Vector{String}
+    testfiles::Vector{String}
+    shower_transforms::Vector{String}
+    train_val_split::Float64
+    batchsize::Int
+    learning_rate::Float64
+    epochs::Int
+    earlystop::Int
+    blocksize_unet::Vector{Int}
+    e_max::Float32
+    e_min::Float32
+    e_log::Bool
+    maxdeposit::Int
+    cylindricalconv::Bool
+    ϕ_input::Bool
+    beta_max::Float64
+    nsteps::Int
+    noise_pred_loss::Bool
+    s_mean::Float32
+    s_std::Float32
+    s_min::Float32
+    s_max::Float32
 
     function TrainingConfig(configpath::String)
         c = YAML.load_file(configpath)
 
-        @assert c["showerTransforms"][1] in ["sqrt", "logit", "log"] "Transformation '$(transforms[1])' not recognized. Expected 'sqrt', 'log' or 'logit'."
-        @assert c["showerTransforms"][2] in ["norm", "scaled"] "Transformation '$(transforms[2])' not recognized. Expected 'norm' or 'scaled'."
+        @assert c["shower_transforms"][1] in ["sqrt", "logit", "log"] "Transformation '$(transforms[1])' not recognized. Expected 'sqrt', 'log' or 'logit'."
+        @assert c["shower_transforms"][2] in ["norm", "scaled"] "Transformation '$(transforms[2])' not recognized. Expected 'norm' or 'scaled'."
 
         new(
-            c["datasetFile"],
-            c["trainFiles"],
-            c["evalFiles"],
-            Tuple(c["showerShape"]),
-            c["showerTransforms"],
-            c["trainValSplit"],
-            c["batchSize"],
-            c["learningRate"],
-            c["maxEpoch"],
-            c["earlyStop"],
-            Tuple(c["layerSizeUnet"]),
-            c["condSizeUnet"],
-            c["blockAttn"],
-            c["midAttn"],
-            c["compressZ"],
-            convert(Float32, c["eMax"]),
-            convert(Float32, c["eMin"]),
-            c["logE"],
-            c["maxDeposit"],
-            c["cylindricalConv"],
-            c["RZinput"],
-            c["betaMax"],
-            c["noiseSched"],
-            c["nSteps"],
-            c["trainingObj"],
-            c["lossType"],
-            c["timeEmbed"],
-            c["condEmbed"],
-            convert(Float32, c["stats"][c["showerTransforms"][1]]["mean"]),
-            convert(Float32, c["stats"][c["showerTransforms"][1]]["std"]),
-            convert(Float32, c["stats"][c["showerTransforms"][1]]["min"]),
-            convert(Float32, c["stats"][c["showerTransforms"][1]]["max"])
+            Calorimeter(c["binningfile"]),
+            c["trainfiles"],
+            c["testfiles"],
+            c["shower_transforms"],
+            c["train_val_split"],
+            c["batchsize"],
+            c["learning_rate"],
+            c["epochs"],
+            c["earlystop"],
+            c["blocksize_unet"],
+            convert(Float32, c["e_max"]),
+            convert(Float32, c["e_min"]),
+            c["e_log"],
+            c["maxdeposit"],
+            c["cylindricalconv"],
+            c["phi_input"],
+            c["beta_max"],
+            c["nsteps"],
+            c["noise_pred_loss"],
+            convert(Float32, c["stats"][c["shower_transforms"][1]]["mean"]),
+            convert(Float32, c["stats"][c["shower_transforms"][1]]["std"]),
+            convert(Float32, c["stats"][c["shower_transforms"][1]]["min"]),
+            convert(Float32, c["stats"][c["shower_transforms"][1]]["max"])
         )
     end
 end

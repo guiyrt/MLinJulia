@@ -28,7 +28,7 @@ function (la::LinearAttention)(x::AbstractArray)
     q, k, v = map(t -> (@cast _[z⊗y⊗x, c, h, b] := t[z, y, x, c⊗h, b] h in 1:la.nHeads), qkv)
 
     q = softmax(q, dims=2) * la.scale
-    softmax!(k, dims=1)
+    k = softmax(k, dims=1)
     
     @reduce c[e, d, h, b] := sum(n) k[n, d, h, b] * v[n, e, h, b]
     @reduce out[n, e, h, b] := sum(d) c[e, d, h, b] * q[n, d, h, b]
@@ -50,7 +50,7 @@ end
 
 Flux.@layer PreNorm
 
-(pn::PreNorm)(x::AbstractArray) = (pn.layer ∘ pn.norm)(x)
+(pn::PreNorm)(x::AbstractArray) =  x |> pn.norm |> pn.layer
 
 
 struct Residual

@@ -1,35 +1,26 @@
-datasetFile: binning_dataset_2.xml
-trainFiles:
-  - dataset_2_1.hdf5
-evalFiles:
-  - dataset_2_2.hdf5
-showerShape: [9, 16, 45, 1]
-showerTransforms:
+binningfile: binnings/ds2_electron.xml
+trainfiles:
+  - datasets/dataset_2_1.hdf5
+testfiles:
+  - datasets/dataset_2_2.hdf5
+shower_transforms:
   - logit
   - norm
-trainValSplit: 0.85
-batchSize: 128
-learningRate: 4.0e-4
-maxEpoch: 1000
-earlyStop: 20
-layerSizeUnet: [16, 16, 16, 32]
-condSizeUnet: 128
-blockAttn: true
-midAttn: true
-compressZ: true
-eMax: 1000.
-eMin: 1.
-logE: true
-maxDeposit: 2
-cylindricalConv: true
-RZinput: true
-betaMax: 0.02
-noiseSched: cosine
-nSteps: 400
-trainingObj: noise_pred
-lossType: l2
-timeEmbed: sigma
-condEmbed: id
+train_val_split: 0.85
+batchsize: 32
+learning_rate: 4.0e-4
+epochs: 1000
+earlystop: 20
+blocksize_unet: [16, 16, 16, 32]
+e_max: 1000.
+e_min: 1.
+e_log: true
+maxdeposit: 2
+cylindricalconv: true
+phi_input: false
+beta_max: 0.02
+nsteps: 400
+noise_pred_loss: true
 stats:
   logit:
     mean: -12.8564
