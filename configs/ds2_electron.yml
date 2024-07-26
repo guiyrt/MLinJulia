@@ -6,6 +6,7 @@ testfiles:
 shower_transforms:
   - logit
   - norm
+device: cpu
 train_val_split: 0.85
 batchsize: 32
 learning_rate: 4.0e-4
@@ -17,7 +18,7 @@ e_min: 1.
 e_log: true
 maxdeposit: 2
 cylindricalconv: true
-phi_input: false
+phi_image: false
 beta_max: 0.02
 nsteps: 400
 noise_pred_loss: true

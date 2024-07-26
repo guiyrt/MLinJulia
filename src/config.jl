@@ -15,10 +15,12 @@ struct TrainingConfig
     e_min::Float32
     e_log::Bool
     maxdeposit::Int
-    cylindricalconv::Bool
-    ϕ_input::Bool
+    convtype::Type{<:Union{Conv, CylindricalConv}}
+    pos_images::AbstractArray
+    nchannels::Int
     beta_max::Float64
     nsteps::Int
+    sched::CosineSchedule
     noise_pred_loss::Bool
     s_mean::Float32
     s_std::Float32
@@ -27,12 +29,13 @@ struct TrainingConfig
 
     function TrainingConfig(configpath::String)
         c = YAML.load_file(configpath)
-
+        calo = Calorimeter(c["binningfile"])
+        
         @assert c["shower_transforms"][1] in ["sqrt", "logit", "log"] "Transformation '$(transforms[1])' not recognized. Expected 'sqrt', 'log' or 'logit'."
         @assert c["shower_transforms"][2] in ["norm", "scaled"] "Transformation '$(transforms[2])' not recognized. Expected 'norm' or 'scaled'."
 
         new(
-            Calorimeter(c["binningfile"]),
+            calo,
             c["trainfiles"],
             c["testfiles"],
             c["shower_transforms"],
@@ -46,10 +49,12 @@ struct TrainingConfig
             convert(Float32, c["e_min"]),
             c["e_log"],
             c["maxdeposit"],
-            c["cylindricalconv"],
-            c["phi_input"],
+            c["cylindricalconv"] ? CylindricalConv : Conv,
+            c["phi_image"] ? createRZϕ_images(calo.shape, c["batchsize"], calo.r_midpoints) : createRZ_images(calo.shape, c["batchsize"], calo.r_midpoints),
+            c["phi_image"] ? 4 : 3,
             c["beta_max"],
             c["nsteps"],
+            CosineSchedule(c["nsteps"]),
             c["noise_pred_loss"],
             convert(Float32, c["stats"][c["shower_transforms"][1]]["mean"]),
             convert(Float32, c["stats"][c["shower_transforms"][1]]["std"]),

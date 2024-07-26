@@ -13,7 +13,7 @@ struct CosineSchedule
 
     function CosineSchedule(nsteps::Int; s::Float32 = 0.008f0)
         steps = LinRange(0f0, nsteps, nsteps+1)
-        alphas_cumprod = cos.(((steps ./ nsteps) .+ s ) ./ (1.0f0 + s) .* 0.5f0 .* π) .^ 2.0f0
+        alphas_cumprod = cos.(((steps ./ nsteps) .+ s ) ./ (1.0f0 + s) .* 0.5f0π) .^ 2.0f0
         alphas_cumprod = alphas_cumprod ./ alphas_cumprod[1]
         β = clamp.(1f0 .- (alphas_cumprod[2:end] ./ alphas_cumprod[1:end-1]), 0.0001f0, 0.9999f0)
         

@@ -17,7 +17,7 @@ struct CalorimeterLayer
         new(
             parse(Int, attr["id"]),
             parse(Int, attr["n_bin_alpha"]),
-            [parse(Float64, edge) for edge in split(attr["r_edges"], ',')]
+            [parse(Float32, edge) for edge in split(attr["r_edges"], ',')]
         )
     end
 end
@@ -26,7 +26,7 @@ end
 struct Calorimeter
     particle::String
     layers::Vector{CalorimeterLayer}
-    r_midpoints::Vector{Float64}
+    r_midpoints::Vector{Float32}
     α_midpoints::Vector{Float64}
     shape::NTuple{4, Int}
     nvoxels::Int

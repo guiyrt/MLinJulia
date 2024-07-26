@@ -10,7 +10,7 @@ function rand32tensors(size...; togpu::Bool=false)
     return data |> fn_if(gpu, togpu), torchdata
 end
 
-function randinttensors(options::Vector{Int}, size...; togpu::Bool=false)
+function randinttensors(options, size...; togpu::Bool=false)
     data = rand(options, size...)
     torchdata = torch.from_numpy(data).to(device=(togpu ? "cuda" : "cpu"))
 

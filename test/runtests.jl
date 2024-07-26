@@ -3,6 +3,10 @@ using MLinJulia, Test
 
 include("python/torch/utils.jl")
 
+@testset "CaloDiffusion" begin
+    include("python/calodiffusion.jl")
+end
+
 @testset "Data" begin
     include("python/data.jl")
 end
