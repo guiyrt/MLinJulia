@@ -5,11 +5,11 @@ end
 
 
 function batchloss(m::CondUnet, c::TrainingConfig, x::AbstractArray, e::AbstractArray, t::AbstractArray, noise::AbstractArray)
-    t_emb = @_ t |> NNlib.gather(c.sched.sqrt_one_minus_αcumprod, __) |> reshape(__, (1, :))
+    t_emb = reshape(c.sched.sqrt_one_minus_αcumprod[t], (1, :))
 
     xₜ = applynoise(c.sched, x, noise, t)
 
-    x̂ = @_ xₜ |> cat(__, c.pos_images; dims=4) |> m(__, e, t_emb)
+    x̂ = @_ xₜ |> cat(__, repeat(c.pos_images, 1, 1, 1, 1, size(x)[end]); dims=4) |> m(__, e, t_emb)
 
     c.noise_pred_loss ? Flux.mse(noise, x̂) : noise_weighthed_avg_loss(x, x̂, extract(c.sched.sqrt_one_minus_αcumprod, t), c.calo.nvoxels)
 end

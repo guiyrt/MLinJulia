@@ -1,7 +1,6 @@
 using Flux, PyCall, CUDA
 torch = pyimport("torch")
 
-nparams = prod∘size
 
 function rand32tensors(size...; togpu::Bool=false)
     data = rand32(size...)

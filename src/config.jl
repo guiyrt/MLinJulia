@@ -1,7 +1,8 @@
-using YAML
+using YAML, Flux
 
 struct TrainingConfig
     calo::Calorimeter
+    device::Device
     trainfiles::Vector{String}
     testfiles::Vector{String}
     shower_transforms::Vector{String}
@@ -34,8 +35,10 @@ struct TrainingConfig
         @assert c["shower_transforms"][1] in ["sqrt", "logit", "log"] "Transformation '$(transforms[1])' not recognized. Expected 'sqrt', 'log' or 'logit'."
         @assert c["shower_transforms"][2] in ["norm", "scaled"] "Transformation '$(transforms[2])' not recognized. Expected 'norm' or 'scaled'."
 
+        device = c["device"] == "gpu" ? gpu : cpu
         new(
             calo,
+            device,
             c["trainfiles"],
             c["testfiles"],
             c["shower_transforms"],
@@ -50,11 +53,11 @@ struct TrainingConfig
             c["e_log"],
             c["maxdeposit"],
             c["cylindricalconv"] ? CylindricalConv : Conv,
-            c["phi_image"] ? createRZϕ_images(calo.shape, c["batchsize"], calo.r_midpoints) : createRZ_images(calo.shape, c["batchsize"], calo.r_midpoints),
+            device(c["phi_image"] ? createRZϕ_images(calo.shape, calo.r_midpoints) : createRZ_images(calo.shape, calo.r_midpoints)),
             c["phi_image"] ? 4 : 3,
             c["beta_max"],
             c["nsteps"],
-            CosineSchedule(c["nsteps"]),
+            CosineSchedule(c["nsteps"], device),
             c["noise_pred_loss"],
             convert(Float32, c["stats"][c["shower_transforms"][1]]["mean"]),
             convert(Float32, c["stats"][c["shower_transforms"][1]]["std"]),

@@ -6,6 +6,8 @@ export reversedims, fn_if
 include("torch/utils.jl")
 export totorchtensor, fromtorchtensor
 
+include("types.jl")
+
 include("layers/conv.jl")
 include("layers/attention.jl")
 include("layers/embeddings.jl")

@@ -32,7 +32,7 @@ function setparams!(rnb::ResNetBlock, torchrnb::PyObject)
         setparams!(rnb.resconv, torchrnb.res_conv)
     end
 
-    return cb
+    return rnb
 end
 
 function ResNetBlock(torchrnb::PyObject) 

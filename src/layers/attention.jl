@@ -24,14 +24,20 @@ Flux.@layer LinearAttention
 function (la::LinearAttention)(x::AbstractArray)
     w, h, l, _, _ = size(x)
     
-    qkv = Flux.chunk(la.toQkv(x), 3; dims=4)
-    q, k, v = map(t -> (@cast _[z⊗y⊗x, c, h, b] := t[z, y, x, c⊗h, b] h in 1:la.nHeads), qkv)
-
-    q = softmax(q, dims=2) * la.scale
-    k = softmax(k, dims=1)
+    qkv = la.toQkv(x)
+    q = qkv[:, :, :, 1:32, :]
+    k = qkv[:, :, :, 33:64, :]
+    v = qkv[:, :, :, 65:96, :]
     
-    @reduce c[e, d, h, b] := sum(n) k[n, d, h, b] * v[n, e, h, b]
-    @reduce out[n, e, h, b] := sum(d) c[e, d, h, b] * q[n, d, h, b]
+    q, k, v = map((t -> @cast _[z⊗y⊗x, c, h, b] := t[z, y, x, c⊗h, b] h in 1:la.nHeads), [q, k, v])
+
+    qₛ = softmax(q; dims=2)
+    kₛ = softmax(k; dims=1)
+    
+    @reduce c[e, d, h, b] := sum(n) kₛ[n, d, h, b] * v[n, e, h, b]
+    @reduce out[n, e, h, b] := sum(d) c[e, d, h, b] * qₛ[n, d, h, b]
+
+    out = out .* la.scale
 
     la.toOut(@cast _[z, y, x, c⊗h, b] := out[z⊗y⊗x, c, h, b] h in 1:la.nHeads, z in 1:w, y in 1:h, x in 1:l)
 end
@@ -42,11 +48,7 @@ struct PreNorm
     layer
 end
 
-function PreNorm(dim::Int, layer::T) where {T}
-    # layer must have AbstractArray functor 
-    @assert any(method.sig >: Tuple{T, AbstractArray} for method in methods(layer)) "No functor for (layer::$T)(x::AbstractArray)"
-    PreNorm(GroupNorm(dim, 1), layer)
-end
+PreNorm(dim::Int, layer) = PreNorm(GroupNorm(dim, 1), layer)
 
 Flux.@layer PreNorm
 
@@ -55,12 +57,6 @@ Flux.@layer PreNorm
 
 struct Residual
     layer
-
-    function Residual(layer::T) where {T}
-        # layer must have AbstractArray functor 
-        @assert any(method.sig >: Tuple{T, AbstractArray} for method in methods(layer)) "No functor for (layer::$T)(x::AbstractArray)"
-        new(layer)
-    end
 end
 
 Flux.@layer Residual
