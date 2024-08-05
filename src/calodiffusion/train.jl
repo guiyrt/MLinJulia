@@ -27,7 +27,7 @@ for epoch in 1:c.epochs
     losses = Float32[]
     for (step, (x, e)) in enumerate(train)
         t = rand(1:c.nsteps, size(x)[end]) |> c.device
-        noise = c.device === gpu ? CUDA.rand(size(x)...) : rand(size(x)...)
+        noise = rand32(size(x)...) |> c.device
         loss, grads = Flux.withgradient(batchloss, model, c, x, e, t, noise)
         Flux.update!(optim, model, grads[1])
 

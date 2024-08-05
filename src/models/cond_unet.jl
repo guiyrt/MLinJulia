@@ -40,7 +40,7 @@ function DownBlock{T}(dim_in::Int, dim_out::Int, downsample::Bool; cond_dim::Int
     )
 end
 
-function MidBlock{T}(dim::Int; cond_dim::Int = 128, resnetblockgroups:: Int = 8) where {T<:Union{Conv, CylindricalConv}}
+function MidBlock{T}(dim::Int, cond_dim::Int = 128, resnetblockgroups:: Int = 8) where {T<:Union{Conv, CylindricalConv}}
     MidBlock{T}(
         ResNetBlock{T}(dim, dim, resnetblockgroups, cond_dim),
         (@_ LinearAttention{T}(dim) |> PreNorm(dim, __) |> Residual),
@@ -98,7 +98,7 @@ struct CondUnet{T<:Union{Conv, CylindricalConv}}
 end
 
 function CondUnet{T}(showershape::NTuple{3, Int}, inchannels::Int, blocksizes::Vector{Int};
-                     cond_dim::Int = 8, resnetblockgroups:: Int = 8, sinusoidal_embeddings::Bool = false
+                     cond_dim::Int = 128, resnetblockgroups:: Int = 8, sinusoidal_embeddings::Bool = false
                     ) where {T<:Union{Conv, CylindricalConv}}
     layers::Vector{UnetLayer} = []
 
@@ -124,8 +124,8 @@ function CondUnet{T}(showershape::NTuple{3, Int}, inchannels::Int, blocksizes::V
         sinusoidal_embeddings ? SinusoidalPositionEmbeddings(cond_dim) : MlpEmbeddings(cond_dim),
         T((3,3,3), inchannels => blocksizes[3]; pad=1),
         layers,
-        MidBlock{T}(blocksizes[end]; cond_dim, resnetblockgroups),
-        Chain(ResNetBlock{T}(blocksizes[2], blocksizes[3], cond_dim), T((1,1,1), blocksizes[3] => 1))
+        MidBlock{T}(blocksizes[end], cond_dim, resnetblockgroups),
+        Chain(ResNetBlock{T}(blocksizes[2], blocksizes[3], resnetblockgroups), T((1,1,1), blocksizes[3] => 1))
     )
 end
 
