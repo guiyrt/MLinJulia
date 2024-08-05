@@ -1,4 +1,5 @@
 binningfile: binnings/ds2_electron.xml
+device: gpu
 trainfiles:
   - datasets/dataset_2_1.hdf5
 testfiles:
@@ -6,7 +7,6 @@ testfiles:
 shower_transforms:
   - logit
   - norm
-device: cpu
 train_val_split: 0.85
 batchsize: 32
 learning_rate: 4.0e-4
