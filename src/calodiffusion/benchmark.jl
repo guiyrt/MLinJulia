@@ -39,6 +39,7 @@ forwardₜ = Float64[]
 backwardₜ = Float64[]
 totalₜ = Float64[]
 
+# Keep track of GPU memory usage
 gpumemₛ = Int64[]
 
 # Benchmark

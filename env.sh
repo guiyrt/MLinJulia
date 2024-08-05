@@ -21,6 +21,16 @@ case "$1" in
         conda activate CaloDiffusion
         ;;
 
+    # Benchmark training loop
+    benchmark)
+        [ -d "benchmarks" ] || mkdir "benchmarks"
+        commit_hash=$(git rev-parse --short HEAD)
+        timestamp=$(date +%d%m%Y)
+        julia --project src/calodiffusion/benchmark.jl > "benchmarks/${timestamp}_${commit_hash}.txt"
+        
+        exit 0
+        ;;
+
     # Remove environment
     remove)
         conda env remove -n CaloDiffusion
@@ -57,6 +67,7 @@ case "$1" in
         echo "Usage: ./env.sh COMMAND"
         echo "Commands:"
         echo "  install    | Installs submodules in python venv"
+        echo "  benchmark  | Save to file benchmark results for training loop"
         echo "  remove     | Removes python venv"
         echo "  load       | Activates python venv (use with source)"
         echo "  datasets   | Downloads coco dataset, perform pose estimation with ViTPose and create KeypointsDataFrames"
