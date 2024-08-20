@@ -1,17 +1,19 @@
-binningfile: binnings/ds2_electron.xml
+binningfile: binnings/ds3_electron.xml
 device: gpu
 trainfiles:
-  - datasets/dataset_2_1.hdf5
+  - datasets/dataset_3_1.hdf5
+  - datasets/dataset_3_2.hdf5
 testfiles:
-  - datasets/dataset_2_2.hdf5
+  - datasets/dataset_3_3.hdf5
+  - datasets/dataset_3_4.hdf5
 shower_transforms:
   - logit
   - norm
 train_val_split: 0.85
-batchsize: 32
+batchsize: 8
 learning_rate: 4.0e-4
 epochs: 100
-blocksize_unet: [16, 16, 16, 32]
+blocksize_unet: [32, 32, 32, 32]
 e_max: 1000.
 e_min: 1.
 e_log: true
@@ -20,7 +22,7 @@ cylindricalconv: true
 phi_image: false
 beta_max: 0.02
 nsteps: 400
-noise_pred_loss: true
+noise_pred_loss: false
 stats:
   logit:
     mean: -12.8564

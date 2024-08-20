@@ -6,6 +6,14 @@ set -e
 case "$1" in
     # Create environments and install dependencies
     install)
+        # Install julia if not installed
+        if ! command -v julia
+            wget https://julialang-s3.julialang.org/bin/linux/x64/1.10/julia-1.10.4-linux-x86_64.tar.gz
+            tar zxvf julia-1.10.4-linux-x86_64.tar.gz -C "$HOME"
+            rm julia-1.10.4-linux-x86_64.tar.gz
+            echo 'export PATH="$PATH:$HOME/julia-1.10.4/bin"' >> $HOME/.bashrc
+        end
+
         # Checkout to submodules' tracked version (also clones submodules if needed)
         git submodule update --init
 
@@ -60,9 +68,7 @@ case "$1" in
 
     # Print help message
     help|*)
-        if [ "$1" != "help" ]; then
-            echo "Unknown command '$1'"
-        fi
+        [ "$1" != "help" ] && echo "Unknown command '$1'"
 
         echo "Usage: ./env.sh COMMAND"
         echo "Commands:"
