@@ -7,18 +7,18 @@ case "$1" in
     # Create environments and install dependencies
     install)
         # Install julia if not installed
-        if ! command -v julia
+        if ! command -v julia; then
             wget https://julialang-s3.julialang.org/bin/linux/x64/1.10/julia-1.10.4-linux-x86_64.tar.gz
             tar zxvf julia-1.10.4-linux-x86_64.tar.gz -C "$HOME"
             rm julia-1.10.4-linux-x86_64.tar.gz
             echo 'export PATH="$PATH:$HOME/julia-1.10.4/bin"' >> $HOME/.bashrc
-        end
+        fi
 
         # Checkout to submodules' tracked version (also clones submodules if needed)
         git submodule update --init
 
         # Create conda environment for original implementation
-        conda env create -f CaloDiffusion/conda.yml -y
+        conda env create -f CaloDiffusion/conda.yml
         
         exit 0
         ;;
@@ -76,7 +76,7 @@ case "$1" in
         echo "  benchmark  | Save to file benchmark results for training loop"
         echo "  remove     | Removes python venv"
         echo "  load       | Activates python venv (use with source)"
-        echo "  datasets   | Downloads coco dataset, perform pose estimation with ViTPose and create KeypointsDataFrames"
+        echo "  datasets   | Downloads datasets"
         echo "  help       | Print this help message"
         ;;
 esac

@@ -1,5 +1,5 @@
 binningfile: binnings/ds3_electron.xml
-device: gpu
+# device: cpu
 trainfiles:
   - datasets/dataset_3_1.hdf5
   - datasets/dataset_3_2.hdf5
@@ -11,7 +11,7 @@ shower_transforms:
   - norm
 train_val_split: 0.85
 batchsize: 8
-learning_rate: 4.0e-4
+learning_rate: 1.0e-4
 epochs: 100
 blocksize_unet: [32, 32, 32, 32]
 e_max: 1000.
@@ -25,17 +25,17 @@ nsteps: 400
 noise_pred_loss: false
 stats:
   logit:
-    mean: -12.8564
-    std: 1.9123
-    min: -13.8155
-    max: 0.1153
+    mean: -13.4753
+    std: 1.1070
+    min: -13.81551
+    max: 0.2909
   log:
-    mean: -17.5451
-    std: 4.4086
-    min: -20.0
-    max: -0.6372
+    mean: -1.1245
+    std: 3.3451
+    min: -18.6905
+    max: 0.0
   sqrt:
-    mean: 0.0026
-    std: 0.0073
-    min: 0.
+    mean: 0.0
+    std: 1.0
+    min: 0.0
     max: 1.0

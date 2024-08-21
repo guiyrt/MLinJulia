@@ -1,4 +1,5 @@
 using Flux, CUDA, PyCall
+torch = pyimport("torch")
 
 fromtorchtensor(t::PyObject; dimsreversed::Bool=true, togpu::Bool=false) = (t.device.type == "cuda" ? t.cpu() : t).detach().numpy() |> fn_if(reversedims, dimsreversed) |> fn_if(gpu, togpu)
 

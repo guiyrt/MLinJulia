@@ -39,7 +39,6 @@ for epoch in 1:c.epochs
 
         push!(losses, loss)
         next!(p, showvalues=[(:epoch, epoch), (:step, step), (:loss, mean(losses))])
-        break
     end
 
     # Validation loop

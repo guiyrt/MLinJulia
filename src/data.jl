@@ -1,7 +1,7 @@
 using HDF5, YAML, Flux, Underscores
 
 
-lastdimcat(x::AbstractArray{T,N}, y::AbstractArray{T,N}) where {T,N} = cat(x, y, ndims(x))
+lastdimcat(x::AbstractArray{T,N}, y::AbstractArray{T,N}) where {T,N} = cat(x, y; dims=ndims(x))
 lastdimcat(x::Tuple{T,N}, y::Tuple{T,N}) where {T,N} = (lastdimcat(x[1], y[1]), lastdimcat(x[2], y[2]))
 
 function load_datafile(filename::String)

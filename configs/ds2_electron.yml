@@ -1,5 +1,5 @@
 binningfile: binnings/ds2_electron.xml
-device: gpu
+# device: cpu
 trainfiles:
   - datasets/dataset_2_1.hdf5
 testfiles:

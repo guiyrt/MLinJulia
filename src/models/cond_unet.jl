@@ -122,7 +122,7 @@ function CondUnet{T}(showershape::NTuple{3, Int}, inchannels::Int, blocksizes::V
     CondUnet{T}(
         sinusoidal_embeddings ? SinusoidalPositionEmbeddings(cond_dim) : MlpEmbeddings(cond_dim),
         sinusoidal_embeddings ? SinusoidalPositionEmbeddings(cond_dim) : MlpEmbeddings(cond_dim),
-        T((3,3,3), inchannels => blocksizes[3]; pad=1),
+        T((3,3,3), inchannels => blocksizes[1]; pad=1),
         layers,
         MidBlock{T}(blocksizes[end], cond_dim, resnetblockgroups),
         Chain(ResNetBlock{T}(blocksizes[2], blocksizes[3], resnetblockgroups), T((1,1,1), blocksizes[3] => 1))

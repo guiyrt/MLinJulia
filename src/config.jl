@@ -1,4 +1,4 @@
-using YAML, Flux
+using YAML, Flux, CUDA
 
 struct TrainingConfig
     calo::Calorimeter
@@ -10,7 +10,6 @@ struct TrainingConfig
     batchsize::Int
     learning_rate::Float64
     epochs::Int
-    earlystop::Int
     blocksize_unet::Vector{Int}
     e_max::Float32
     e_min::Float32
@@ -35,7 +34,13 @@ struct TrainingConfig
         @assert c["shower_transforms"][1] in ["sqrt", "logit", "log"] "Transformation '$(transforms[1])' not recognized. Expected 'sqrt', 'log' or 'logit'."
         @assert c["shower_transforms"][2] in ["norm", "scaled"] "Transformation '$(transforms[2])' not recognized. Expected 'norm' or 'scaled'."
 
-        device = c["device"] == "gpu" ? gpu : cpu
+        # GPU is preferred when available, but device can also be selected in config
+        if haskey(c, "device")
+            device = c["device"] == "gpu" ? gpu : cpu
+        else
+            device = CUDA.functional() ? gpu : cpu
+        end
+
         new(
             calo,
             device,
@@ -46,7 +51,6 @@ struct TrainingConfig
             c["batchsize"],
             c["learning_rate"],
             c["epochs"],
-            c["earlystop"],
             c["blocksize_unet"],
             convert(Float32, c["e_max"]),
             convert(Float32, c["e_min"]),
@@ -71,4 +75,4 @@ end
 #TODO const DS1π_CONFIG = TrainingConfig("configs/ds1_pion.yml")
 #TODO const DS1γ_CONFIG = TrainingConfig("configs/ds1_photon.yml")
 const DS2e⁻_CONFIG = TrainingConfig("configs/ds2_electron.yml")
-#TODO const DS3e⁻_CONFIG = TrainingConfig("configs/ds3_electron.yml")
+const DS3e⁻_CONFIG = TrainingConfig("configs/ds3_electron.yml")
