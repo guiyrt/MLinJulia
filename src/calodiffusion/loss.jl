@@ -25,4 +25,5 @@ function batchloss(m::CondUnet, c::TrainingConfig, x::AbstractArray, e::Abstract
     end
 
     @ignore_derivatives NVTX.@mark "batchloss: end"
+    return loss
 end

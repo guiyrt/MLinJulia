@@ -1,5 +1,7 @@
 using ArgParse, Flux, MLinJulia, CUDA, NVTX
 
+NVTX.enable_gc_hooks(;gc=true, alloc=true, free=true)
+NVTX.enable_inference_hook(true)
 
 function parse_commandline()
     s = ArgParseSettings(prog="Train CaloDiffusion")
@@ -13,7 +15,7 @@ function parse_commandline()
         "--steps", "-s"
             help = "Train steps for benchmark"
             arg_type = Int
-            default = 100
+            default = 20
     end
 
     return parse_args(s)
@@ -28,8 +30,8 @@ model = CondUnet{c.convtype}(c.calo.shape[1:3], c.nchannels, c.blocksize_unet) |
 optim = Flux.setup(Adam(c.learning_rate), model)
 
 # Training loop
-CUDA.@profile begin
-    for s in 1:args["steps"]
+CUDA.@profile external=true begin
+    for _ in 1:args["steps"]
         NVTX.@range "step" begin
             NVTX.@range "Data from dataloader" begin
                 data, _ = iterate(train)
