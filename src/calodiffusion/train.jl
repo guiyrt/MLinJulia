@@ -8,16 +8,23 @@ function parse_commandline()
         "config"
             help = "Path to YAML config file"
             arg_type = String
-            required = true
+
+        "--batchsize", "-b"
+            help = "Number of samples per batch"
+            arg_type = Int
+
+        "--device", "-d"
+            help = "Type of device (cpu/gpu) to use for benchmark"
+            arg_type = String
     end
 
     return parse_args(s)
 end
 
 args = parse_commandline()
-c = TrainingConfig(args["config"])
+c = TrainingConfig(args["config"], args["batchsize"], args["device"])
 
-train, val, test = get_dataloaders(c, c.device)
+train, val, test = get_dataloaders(c)
 
 model = CondUnet{c.convtype}(c.calo.shape[1:3], c.nchannels, c.blocksize_unet) |> c.device
 optim = Flux.setup(Adam(c.learning_rate), model)

@@ -9,17 +9,18 @@ function load_datafile(filename::String)
     energies::Array{Float32} = h5read(filename, "incident_energies")
     return showers,energies
 end
+
 load_dataset(filenames::Vector{String}) = reduce(lastdimcat, [load_datafile(file) for file in filenames])
 
-function get_dataloaders(c::TrainingConfig, d::Device)
+function get_dataloaders(c::TrainingConfig)
     train = @_ load_dataset(c.trainfiles) |> preprocess(c, __...)
     test = @_ load_dataset(c.testfiles) |> preprocess(c, __...)
 
     train, val = Flux.splitobs(train, at=c.train_val_split, shuffle=true)
 
-    train_loader = Flux.DataLoader(train, batchsize=c.batchsize, shuffle=true) |> d
-    val_loader = Flux.DataLoader(val, batchsize=c.batchsize, shuffle=false) |> d
-    test_loader = Flux.DataLoader(test, batchsize=c.batchsize, shuffle=false) |> d
+    train_loader = Flux.DataLoader(train, batchsize=c.batchsize, shuffle=true) |> c.device
+    val_loader = Flux.DataLoader(val, batchsize=c.batchsize, shuffle=false) |> c.device
+    test_loader = Flux.DataLoader(test, batchsize=c.batchsize, shuffle=false) |> c.device
 
     return train_loader, val_loader, test_loader
 end

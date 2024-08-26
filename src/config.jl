@@ -27,15 +27,18 @@ struct TrainingConfig
     s_min::Float32
     s_max::Float32
 
-    function TrainingConfig(configpath::String)
+    function TrainingConfig(configpath::String, batchsize=nothing, device=nothing)
         c = YAML.load_file(configpath)
+
         calo = Calorimeter(c["binningfile"])
         
         @assert c["shower_transforms"][1] in ["sqrt", "logit", "log"] "Transformation '$(transforms[1])' not recognized. Expected 'sqrt', 'log' or 'logit'."
         @assert c["shower_transforms"][2] in ["norm", "scaled"] "Transformation '$(transforms[2])' not recognized. Expected 'norm' or 'scaled'."
 
         # GPU is preferred when available, but device can also be selected in config
-        if haskey(c, "device")
+        if !isnothing(device)
+            device = device == "gpu" ? gpu : cpu
+        elseif haskey(c, "device")
             device = c["device"] == "gpu" ? gpu : cpu
         else
             device = CUDA.functional() ? gpu : cpu
@@ -48,7 +51,7 @@ struct TrainingConfig
             c["testfiles"],
             c["shower_transforms"],
             c["train_val_split"],
-            c["batchsize"],
+            !isnothing(batchsize) ? batchsize : c["batchsize"],
             c["learning_rate"],
             c["epochs"],
             c["blocksize_unet"],
