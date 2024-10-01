@@ -31,13 +31,14 @@ function (la::LinearAttention)(x::AbstractArray)
     
     q, k, v = map((t -> @cast _[z⊗y⊗x, c, h, b] := t[z, y, x, c⊗h, b] h in 1:la.nHeads), [q, k, v])
 
-    qₛ = softmax(q; dims=2)
+    qₛ = softmax(q; dims=2) .* la.scale
     kₛ = softmax(k; dims=1)
-    
-    @reduce c[e, d, h, b] := sum(n) kₛ[n, d, h, b] * v[n, e, h, b]
-    @reduce out[n, e, h, b] := sum(d) c[e, d, h, b] * qₛ[n, d, h, b]
 
-    out = out .* la.scale
+    vt = permutedims(v, (2, 1, 3, 4))
+    ct = batched_mul(vt, kₛ)
+    c = permutedims(ct, (2, 1, 3, 4))
+
+    out = batched_mul(qₛ, c)
 
     la.toOut(@cast _[z, y, x, c⊗h, b] := out[z⊗y⊗x, c, h, b] h in 1:la.nHeads, z in 1:w, y in 1:h, x in 1:l)
 end
