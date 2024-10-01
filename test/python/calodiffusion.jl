@@ -9,7 +9,7 @@ pyCaloDiffu = pyimport("scripts.CaloDiffu")
 @testset "CaloDiffusion noise_pred_loss" begin
     pycalodiffu = pyCaloDiffu.CaloDiffu([1, 45, 16, 9], "../CaloDiffusion/configs/config_dataset2.json")
 
-    c = TrainingConfig("../configs/ds2_electron.yml")
+    c = TrainingConfig("configs/ds2_electron.yml")
     unet = CondUnet(pycalodiffu.model) |> c.device
 
     # Test noise schedule variables
@@ -37,7 +37,7 @@ end
 @testset "CaloDiffusion noise_weighthed_avg_loss" begin
     pycalodiffu = pyCaloDiffu.CaloDiffu([1, 45, 50, 18], "../CaloDiffusion/configs/config_dataset3.json")
 
-    c = TrainingConfig("../configs/ds3_electron.yml")
+    c = TrainingConfig("configs/ds3_electron.yml")
     unet = CondUnet(pycalodiffu.model) |> c.device
 
     data, torchdata = rand32tensors(18, 50, 45, 1, c.batchsize; togpu=CUDA.functional())

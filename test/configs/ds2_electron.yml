@@ -1,0 +1,39 @@
+binningfile: ../binnings/ds2_electron.xml
+# device: cpu
+trainfiles:
+  - ../datasets/dataset_2_1.hdf5
+testfiles:
+  - ../datasets/dataset_2_2.hdf5
+shower_transforms:
+  - logit
+  - norm
+train_val_split: 0.85
+batchsize: 32
+learning_rate: 4.0e-4
+epochs: 100
+blocksize_unet: [16, 16, 16, 32]
+e_max: 1000.
+e_min: 1.
+e_log: true
+maxdeposit: 2
+cylindricalconv: true
+phi_image: false
+beta_max: 0.02
+nsteps: 400
+noise_pred_loss: true
+stats:
+  logit:
+    mean: -12.8564
+    std: 1.9123
+    min: -13.8155
+    max: 0.1153
+  log:
+    mean: -17.5451
+    std: 4.4086
+    min: -20.0
+    max: -0.6372
+  sqrt:
+    mean: 0.0026
+    std: 0.0073
+    min: 0.
+    max: 1.0

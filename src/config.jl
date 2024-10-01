@@ -73,9 +73,3 @@ struct TrainingConfig
         )
     end
 end
-
-
-#TODO const DS1π_CONFIG = TrainingConfig("configs/ds1_pion.yml")
-#TODO const DS1γ_CONFIG = TrainingConfig("configs/ds1_photon.yml")
-const DS2e⁻_CONFIG = TrainingConfig("configs/ds2_electron.yml")
-const DS3e⁻_CONFIG = TrainingConfig("configs/ds3_electron.yml")

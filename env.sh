@@ -21,6 +21,11 @@ case "$1" in
         conda env create -f CaloDiffusion/conda.yml
         ;;
 
+    # Train with dataset 2
+    train)
+        julia --project src/calodiffusion/train.jl configs/ds2_electron.yml
+        ;;
+
     # Load python venv
     load)
         set +e
@@ -105,6 +110,7 @@ case "$1" in
         echo "Usage: ./env.sh COMMAND"
         echo "Commands:"
         echo "  install    | Installs CaloDiffusion conda enviroment"
+        echo "  train      | Train model with dataset 2"
         echo "  profile    | Profiles and benchmarks training loop"
         echo "  remove     | Removes conda environment"
         echo "  load       | Activates conda environment (use with source)"
